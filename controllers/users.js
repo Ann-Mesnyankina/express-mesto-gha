@@ -11,15 +11,17 @@ module.exports.getUserId = (req, res) => {
   User.findByIdAndUpdate(req.params.userId)
     .orFail()
     .then((user) => {
-      res.send({ data: user });
+      if (user) {
+        res.send({ data: user });
+      } else {
+        res.status(404).send({ message: 'Передан несуществующий ID' });
+      }
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
-      } else if (error instanceof mongoose.Error.CastError) {
-        res.status(404).send({ message: 'Передан несуществующий ID' });
       } else {
         res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
