@@ -14,7 +14,7 @@ module.exports.getUserId = (req, res) => {
       res.send({ data: user });
     })
     .catch((error) => {
-      if (error instanceof mongoose.Error.CastError) {
+      if (error instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
@@ -42,7 +42,7 @@ module.exports.updateProfile = (req, res) => {
     .orFail()
     .then((user) => res.send({ data: user }))
     .catch((error) => {
-      if (error instanceof mongoose.Error.CastError) {
+      if (error instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
