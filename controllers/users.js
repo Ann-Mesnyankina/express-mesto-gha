@@ -18,6 +18,8 @@ module.exports.getUserId = (req, res) => {
         res.status(400).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+      } else if (error instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Передан невалидный ID' });
       } else {
         res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
