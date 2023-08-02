@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card');
+const {
+  badRequest, notFound, internalServerError, okStatus,
+} = require('../utils/constants');
 
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .catch(() => res.status(internalServerError).send({ message: 'На сервере произошла ошибка' }));
 };
 
 module.exports.deleteCardById = (req, res) => {
@@ -16,23 +19,23 @@ module.exports.deleteCardById = (req, res) => {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Передан неверный ID' });
+        res.status(badRequest).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Карта по ID не найдена' });
+        res.status(notFound).send({ message: 'Карта по ID не найдена' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(internalServerError).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
 
 module.exports.createCard = (req, res) => {
   Card.create({ name: req.body.name, link: req.body.link, owner: req.user._id })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(okStatus).send(card))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        res.status(400).send({ message: error.message });
+        res.status(badRequest).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(internalServerError).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -45,11 +48,11 @@ module.exports.updateLike = (req, res) => {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Передан неверный ID' });
+        res.status(badRequest).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Карта по ID не найдена' });
+        res.status(notFound).send({ message: 'Карта по ID не найдена' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(internalServerError).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -62,11 +65,11 @@ module.exports.deleteLike = (req, res) => {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Передан неверный ID' });
+        res.status(badRequest).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Карта по ID не найдена' });
+        res.status(notFound).send({ message: 'Карта по ID не найдена' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(internalServerError).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };

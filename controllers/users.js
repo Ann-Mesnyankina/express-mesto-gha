@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
+const {
+  badRequest, notFound, internalServerError, okStatus,
+} = require('../utils/constants');
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .catch(() => res.status(internalServerError).send({ message: 'На сервере произошла ошибка' }));
 };
 
 module.exports.getUserId = (req, res) => {
@@ -15,11 +18,11 @@ module.exports.getUserId = (req, res) => {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        res.status(404).send({ message: 'Передан неверный ID' });
+        res.status(badRequest).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        res.status(notFound).send({ message: 'Запрашиваемый пользователь не найден' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(internalServerError).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -27,12 +30,12 @@ module.exports.getUserId = (req, res) => {
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(okStatus).send(user))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        res.status(400).send({ message: error.message });
+        res.status(badRequest).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(internalServerError).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -43,11 +46,11 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Передан неверный ID' });
+        res.status(badRequest).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        res.status(notFound).send({ message: 'Запрашиваемый пользователь не найден' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(internalServerError).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -58,11 +61,11 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Передан неверный ID' });
+        res.status(badRequest).send({ message: 'Передан неверный ID' });
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        res.status(notFound).send({ message: 'Запрашиваемый пользователь не найден' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(internalServerError).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
