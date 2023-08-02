@@ -12,9 +12,12 @@ module.exports.getAllUsers = (req, res) => {
 
 module.exports.getUserId = (req, res) => {
   User.findByIdAndUpdate(req.params.userId)
-    .orFail()
     .then((user) => {
-      res.send({ data: user });
+      if (user) {
+        res.send({ data: user });
+      } else {
+        res.status(notFound).send({ message: 'Передан несуществующий ID' });
+      }
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
