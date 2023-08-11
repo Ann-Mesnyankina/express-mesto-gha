@@ -35,6 +35,25 @@ module.exports.getUserId = (req, res, next) => {
     });
 };
 
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (user) {
+        res.send({ data: user });
+      } else {
+        throw new NotFoundError('Передан несуществующий ID');
+      }
+    })
+    .catch((error) => {
+      if (error instanceof mongoose.Error.CastError) {
+        return next(new CastError('Передан неверный ID'));
+      } if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        return next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      }
+      return next(new InternalServerError('На сервере произошла ошибка'));
+    });
+};
+
 module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
