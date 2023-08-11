@@ -6,9 +6,30 @@ const {
 } = require('../controllers/cards');
 
 router.get('/', getAllCards);
-router.delete('/:cardId', deleteCardById);
-router.post('/', createCard);
-router.put('/:cardId/likes', updateLike);
-router.delete('/:cardId/likes', deleteLike);
+
+router.delete('/:cardId', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().required().length(24).hex(),
+  }),
+}), deleteCardById);
+
+router.post('/', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().require().min(2).max(30),
+    link: Joi.string().require().regex(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/),
+  }),
+}), createCard);
+
+router.put('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().required().length(24).hex(),
+  }),
+}), updateLike);
+
+router.delete('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().required().length(24).hex(),
+  }),
+}), deleteLike);
 
 module.exports = router;
