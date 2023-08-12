@@ -14,8 +14,8 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, 'mesto-secret-key');
   } catch (err) {
-    return next(new AuthError('Необходима авторизация'));
+    next(new AuthError('Необходима авторизация'));
   }
   req.user = payload;
-  return next();
+  next();
 };
