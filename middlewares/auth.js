@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const AuthError = require('../errors/auth-err');
-const InternalServerError = require('../errors/internal-server-err');
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
@@ -18,5 +17,5 @@ module.exports = (req, res, next) => {
     return next(new AuthError('Необходима авторизация'));
   }
   req.user = payload;
-  return next(new InternalServerError('На сервере произошла ошибка'));
+  return next();
 };
