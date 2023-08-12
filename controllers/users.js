@@ -66,15 +66,17 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-    }))
+    .then((user) => {
+      res.send({
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      });
+    })
     .catch((error) => {
-      if (error.code === 11000) {
+      if (error instanceof mongoose.Error.MongoServerError && error.code === 11000) {
         return next(new ConflictStatus('Этот email уже зарегестрирован'));
       }
       if (error.name === 'ValidationError') {
@@ -112,7 +114,7 @@ module.exports.updateAvatar = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findOne({ email }).select('+password')
+  User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         throw new AuthError('Неправильные почта или пароль');
@@ -120,7 +122,7 @@ module.exports.login = (req, res, next) => {
       bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new AuthError('Неправильные почта или пароль');
+            return next(new AuthError('Неправильные почта или пароль'));
           }
           const token = jwt.sign({ _id: user._id }, 'mesto-secret-key', { expiresIn: '7d' });
           return res.send({ token });
