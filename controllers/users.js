@@ -76,7 +76,7 @@ module.exports.createUser = (req, res, next) => {
       });
     })
     .catch((error) => {
-      if (error instanceof mongoose.Error.MongoServerError && error.code === 11000) {
+      if (error.code === 11000) {
         return next(new ConflictStatus('Этот email уже зарегестрирован'));
       }
       if (error.name === 'ValidationError') {
