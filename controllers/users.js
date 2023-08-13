@@ -4,15 +4,14 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const CastError = require('../errors/cast-err');
-const InternalServerError = require('../errors/internal-server-err');
 const ConflictStatus = require('../errors/conflict-err');
 const AuthError = require('../errors/auth-err');
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => {
-      next(new InternalServerError('На сервере произошла ошибка'));
+    .catch((error) => {
+      next(error);
     });
 };
 
@@ -27,11 +26,12 @@ module.exports.getUserId = (req, res, next) => {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        return next(new CastError('Передан неверный ID'));
-      } if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFoundError('Запрашиваемый пользователь не найден'));
+        next(new CastError('Передан неверный ID'));
+      } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      } else {
+        next(error);
       }
-      return next(new InternalServerError('На сервере произошла ошибка'));
     });
 };
 
@@ -46,11 +46,12 @@ module.exports.getCurrentUser = (req, res, next) => {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        return next(new CastError('Передан неверный ID'));
-      } if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFoundError('Запрашиваемый пользователь не найден'));
+        next(new CastError('Передан неверный ID'));
+      } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      } else {
+        next(error);
       }
-      return next(new InternalServerError('На сервере произошла ошибка'));
     });
 };
 
@@ -77,12 +78,12 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((error) => {
       if (error.code === 11000) {
-        return next(new ConflictStatus('Этот email уже зарегестрирован'));
+        next(new ConflictStatus('Этот email уже зарегестрирован'));
+      } else if (error instanceof mongoose.Error.CastError) {
+        next(new CastError('Переданы неверные данные'));
+      } else {
+        next(error);
       }
-      if (error.name === 'ValidationError') {
-        return next(new CastError('Переданы неверные данные'));
-      }
-      return next(error);
     });
 };
 
@@ -92,10 +93,12 @@ module.exports.updateProfile = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
-        return next(new CastError('Передан неверный ID'));
-      } if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFoundError('Запрашиваемый пользователь не найден'));
-      } return next(new InternalServerError('На сервере произошла ошибка'));
+        next(new CastError('Передан неверный ID'));
+      } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      } else {
+        next(error);
+      }
     });
 };
 
@@ -105,10 +108,12 @@ module.exports.updateAvatar = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        return next(new CastError('Передан неверный ID'));
-      } if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFoundError('Запрашиваемый пользователь не найден'));
-      } return next(new InternalServerError('На сервере произошла ошибка'));
+        next(new CastError('Передан неверный ID'));
+      } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      } else {
+        next(error);
+      }
     });
 };
 

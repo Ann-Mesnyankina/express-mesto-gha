@@ -9,6 +9,7 @@ const auth = require('./middlewares/auth');
 const {
   createUser, login,
 } = require('./controllers/users');
+const { errorMain } = require('./middlewares/errorMain');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -49,4 +50,5 @@ app.use('*', (req, res) => {
 });
 
 app.use(errors());
+app.use(errorMain);
 app.listen(PORT);

@@ -2,14 +2,13 @@ const mongoose = require('mongoose');
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
 const CastError = require('../errors/cast-err');
-const InternalServerError = require('../errors/internal-server-err');
 const ForbiddenError = require('../errors/forbidden-err');
 
 module.exports.getAllCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((card) => res.send({ data: card }))
-    .catch(() => next(new InternalServerError('На сервере произошла ошибка')));
+    .catch((error) => next(error));
 };
 
 module.exports.deleteCardById = (req, res, next) => {
@@ -23,10 +22,12 @@ module.exports.deleteCardById = (req, res, next) => {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        return next(new CastError('Передан неверный ID'));
-      } if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFoundError('Карта по ID не найдена'));
-      } return next(new InternalServerError('На сервере произошла ошибка'));
+        next(new CastError('Передан неверный ID'));
+      } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        next(new NotFoundError('Карта по ID не найдена'));
+      } else {
+        next(error);
+      }
     });
 };
 
@@ -34,9 +35,11 @@ module.exports.createCard = (req, res, next) => {
   Card.create({ name: req.body.name, link: req.body.link, owner: req.user._id })
     .then((card) => res.send(card))
     .catch((error) => {
-      if (error.name === 'ValidationError') {
-        return next(new CastError('Переданы неверные данные'));
-      } return next(new InternalServerError('На сервере произошла ошибка'));
+      if (error instanceof mongoose.Error.CastError) {
+        next(new CastError('Переданы неверные данные'));
+      } else {
+        next(error);
+      }
     });
 };
 
@@ -48,10 +51,12 @@ module.exports.updateLike = (req, res, next) => {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        return next(new CastError('Передан неверный ID'));
-      } if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFoundError('Карта по ID не найдена'));
-      } return next(new InternalServerError('На сервере произошла ошибка'));
+        next(new CastError('Передан неверный ID'));
+      } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        next(new NotFoundError('Карта по ID не найдена'));
+      } else {
+        next(error);
+      }
     });
 };
 
@@ -63,9 +68,11 @@ module.exports.deleteLike = (req, res, next) => {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
-        return next(new CastError('Передан неверный ID'));
-      } if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFoundError('Карта по ID не найдена'));
-      } return next(new InternalServerError('На сервере произошла ошибка'));
+        next(new CastError('Передан неверный ID'));
+      } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        next(new NotFoundError('Карта по ID не найдена'));
+      } else {
+        next(error);
+      }
     });
 };
