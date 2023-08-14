@@ -12,22 +12,25 @@ module.exports.getAllCards = (req, res, next) => {
 };
 
 module.exports.deleteCardById = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail()
-    .then((user) => {
-      if (!user.owner.equals(req.user._id)) {
+  Card.findById(req.params.cardId)
+    .then((card) => {
+      if (!card.owner.equals(req.user._id)) {
         throw new ForbiddenError('Не получится удалить чужую карту');
       }
-      res.send({ message: 'Карта удалена' });
-    })
-    .catch((error) => {
-      if (error instanceof mongoose.Error.CastError) {
-        next(new CastError('Передан неверный ID'));
-      } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        next(new NotFoundError('Карта по ID не найдена'));
-      } else {
-        next(error);
-      }
+      Card.deleteOne(card)
+        .orFail()
+        .then(() => {
+          res.send({ message: 'Карта удалена' });
+        })
+        .catch((error) => {
+          if (error instanceof mongoose.Error.CastError) {
+            next(new CastError('Передан неверный ID'));
+          } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
+            next(new NotFoundError('Карта по ID не найдена'));
+          } else {
+            next(error);
+          }
+        });
     });
 };
 

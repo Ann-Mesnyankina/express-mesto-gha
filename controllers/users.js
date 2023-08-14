@@ -6,6 +6,7 @@ const NotFoundError = require('../errors/not-found-err');
 const CastError = require('../errors/cast-err');
 const ConflictStatus = require('../errors/conflict-err');
 const AuthError = require('../errors/auth-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
@@ -36,13 +37,9 @@ module.exports.getUserId = (req, res, next) => {
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.params.userId)
+  User.findById(req.user._id)
     .then((user) => {
-      if (user) {
-        res.send({ data: user });
-      } else {
-        throw new NotFoundError('Передан несуществующий ID');
-      }
+      res.send({ data: user });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
@@ -122,7 +119,7 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new AuthError('Неправильные почта или пароль');
+        throw new ForbiddenError('Пользователь по такому email не найден');
       }
       bcrypt.compare(password, user.password)
         .then((matched) => {
