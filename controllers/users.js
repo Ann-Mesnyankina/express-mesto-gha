@@ -59,7 +59,7 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(password, 8)
+  bcrypt.hash(password, 10)
     .then((hash) => User.create({
       name,
       about,
@@ -127,7 +127,7 @@ module.exports.login = (req, res, next) => {
       bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return next(new AuthError('Неправильные почта или пароль'));
+            throw new AuthError('Неправильные почта или пароль');
           }
           const token = jwt.sign({ _id: user._id }, 'mesto-secret-key', { expiresIn: '7d' });
           return res.send({ token });
