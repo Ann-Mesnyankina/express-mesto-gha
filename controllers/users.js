@@ -6,7 +6,6 @@ const NotFoundError = require('../errors/not-found-err');
 const CastError = require('../errors/cast-err');
 const ConflictStatus = require('../errors/conflict-err');
 const AuthError = require('../errors/auth-err');
-const ForbiddenError = require('../errors/forbidden-err');
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
@@ -118,8 +117,8 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password')
     .then((user) => {
-      if (!user) {
-        throw new ForbiddenError('Пользователь по такому email не найден');
+      if (!user || !bcrypt.compareSync(password, user.password)) {
+        throw new AuthError('Неправильные почта или пароль');
       }
       bcrypt.compare(password, user.password)
         .then((matched) => {
