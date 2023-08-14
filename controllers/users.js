@@ -5,7 +5,6 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const CastError = require('../errors/cast-err');
 const ConflictStatus = require('../errors/conflict-err');
-const AuthError = require('../errors/auth-err');
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
@@ -115,19 +114,10 @@ module.exports.updateAvatar = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email }).select('+password')
+  User.findUserByCredentials({ email, password }).select('+password')
     .then((user) => {
-      if (!user || !bcrypt.compareSync(password, user.password)) {
-        throw new AuthError('Неправильные почта или пароль');
-      }
-      bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new AuthError('Неправильные почта или пароль');
-          }
-          const token = jwt.sign({ _id: user._id }, 'mesto-secret-key', { expiresIn: '7d' });
-          return res.send({ token });
-        })
-        .catch(next);
-    });
+      const token = jwt.sign({ _id: user._id }, 'mesto-secret-key', { expiresIn: '7d' });
+      return res.send({ token });
+    })
+    .catch(next);
 };
