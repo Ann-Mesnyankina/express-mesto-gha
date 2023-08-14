@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-const auth = require('./middlewares/auth');
 
 const { errorMain } = require('./middlewares/errorMain');
 
@@ -23,8 +22,12 @@ app.use(helmet());
 app.use('/', require('./routes/sign-up'));
 app.use('/', require('./routes/sign-in'));
 
-app.use('/users', auth, require('./routes/users'));
-app.use('/cards', auth, require('./routes/cards'));
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Страница не найдена' });
+});
+
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
 
 app.use(errors());
 app.use(errorMain);
