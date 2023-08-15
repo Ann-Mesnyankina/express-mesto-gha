@@ -14,10 +14,10 @@ module.exports.getAllCards = (req, res, next) => {
 module.exports.deleteCardById = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
-      if (!card.owner.equals(req.user._id)) {
+      if (card.owner.notEqual(req.user._id)) {
         throw new ForbiddenError('Не получится удалить чужую карту');
       }
-      card.remove()
+      Card.deleteOne(card)
         .then(() => {
           res.send({ message: 'Карта удалена' });
         })
