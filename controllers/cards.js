@@ -27,17 +27,12 @@ module.exports.deleteCardById = (req, res, next) => {
             next(new CastError('Передан неверный ID'));
           } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
             next(new NotFoundError('Карта по ID не найдена'));
+          } else if (error instanceof mongoose.Error.AssertionError) {
+            next(new NotFoundError('Передан несуществующий в БД ID карты'));
           } else {
             next(error);
           }
         });
-    })
-    .catch((error) => {
-      if (error instanceof mongoose.Error.DocumentNotFoundError) {
-        next(new NotFoundError('Передан несуществующий в БД ID карты'));
-      } else {
-        next(error);
-      }
     });
 };
 
