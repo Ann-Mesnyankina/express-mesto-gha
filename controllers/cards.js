@@ -33,8 +33,8 @@ module.exports.deleteCardById = (req, res, next) => {
         });
     })
     .catch((error) => {
-      if (error.name === 'TypeError') {
-        throw new NotFoundError('Передан несуществующий в БД ID карты');
+      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        next(new NotFoundError('Передан несуществующий в БД ID карты'));
       } else {
         next(error);
       }
