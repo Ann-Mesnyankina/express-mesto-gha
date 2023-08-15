@@ -13,8 +13,9 @@ module.exports.getAllCards = (req, res, next) => {
 
 module.exports.deleteCardById = (req, res, next) => {
   Card.findById(req.params.cardId)
+    .orFail()
     .then((card) => {
-      if (card.owner.notEqual(req.user._id)) {
+      if (!card.owner.equel(req.user._id)) {
         throw new ForbiddenError('Не получится удалить чужую карту');
       }
       Card.deleteOne(card)
