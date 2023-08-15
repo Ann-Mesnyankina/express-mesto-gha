@@ -13,12 +13,12 @@ module.exports.getAllCards = (req, res, next) => {
 
 module.exports.deleteCardById = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .orFail()
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
         throw new ForbiddenError('Не получится удалить чужую карту');
       }
       Card.deleteMany(card)
+        .orFail()
         .then(() => {
           res.send({ message: 'Карта удалена' });
         })
@@ -28,7 +28,7 @@ module.exports.deleteCardById = (req, res, next) => {
           } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
             next(new NotFoundError('Карта по ID не найдена'));
           } else if (error.name === 'TypeError') {
-            next(new CastError('Передан несуществующий в БД ID карты'));
+            next(new NotFoundError('Передан несуществующий в БД ID карты'));
           } else {
             next(error);
           }
