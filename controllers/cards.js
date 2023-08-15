@@ -17,7 +17,7 @@ module.exports.deleteCardById = (req, res, next) => {
       if (!card.owner.equals(req.user._id)) {
         throw new ForbiddenError('Не получится удалить чужую карту');
       }
-      Card.deleteMany(card)
+      card.remove()
         .then(() => {
           res.send({ message: 'Карта удалена' });
         })
