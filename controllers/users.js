@@ -114,8 +114,7 @@ module.exports.updateAvatar = (req, res, next) => {
 };
 
 module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
-  return User.findUserByCredentials({ email, password })
+  User.findUserByCredentials(req.body.email, req.body.password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'mesto-secret-key', { expiresIn: '7d' });
       return res.status(200).send({ token });
