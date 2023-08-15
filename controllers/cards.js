@@ -19,7 +19,7 @@ module.exports.deleteCardById = (req, res, next) => {
       } else if (!card.owner.equals(req.user._id)) {
         throw new ForbiddenError('Не получится удалить чужую карту');
       } else {
-        Card.deleteMany(card)
+        Card.deleteOne(card)
           .then(() => {
             res.send({ message: 'Карта удалена' });
           })
@@ -33,7 +33,7 @@ module.exports.createCard = (req, res, next) => {
   Card.create({ name: req.body.name, link: req.body.link, owner: req.user._id })
     .then((card) => res.send(card))
     .catch((error) => {
-      if (error instanceof mongoose.Error.CastError) {
+      if (error instanceof mongoose.Error.ValidationError) {
         next(new CastError('Переданы неверные данные'));
       } else {
         next(error);

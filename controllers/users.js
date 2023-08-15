@@ -15,13 +15,10 @@ module.exports.getAllUsers = (req, res, next) => {
 };
 
 module.exports.getUserId = (req, res, next) => {
-  User.findByIdAndUpdate(req.params.userId)
+  User.findById(req.params.userId)
+    .orFail()
     .then((user) => {
-      if (user) {
-        res.send({ data: user });
-      } else {
-        throw new NotFoundError('Передан несуществующий ID');
-      }
+      res.send({ data: user });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {
@@ -41,9 +38,7 @@ module.exports.getCurrentUser = (req, res, next) => {
       res.send({ data: user });
     })
     .catch((error) => {
-      if (error instanceof mongoose.Error.CastError) {
-        next(new CastError('Передан неверный ID'));
-      } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
+      if (error instanceof mongoose.Error.DocumentNotFoundError) {
         next(new NotFoundError('Запрашиваемый пользователь не найден'));
       } else {
         next(error);
@@ -75,7 +70,7 @@ module.exports.createUser = (req, res, next) => {
     .catch((error) => {
       if (error.code === 11000) {
         next(new ConflictStatus('Этот email уже зарегестрирован'));
-      } else if (error instanceof mongoose.Error.CastError) {
+      } else if (error instanceof mongoose.Error.ValidationError) {
         next(new CastError('Переданы неверные данные'));
       } else {
         next(error);
