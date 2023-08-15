@@ -117,7 +117,7 @@ module.exports.login = (req, res, next) => {
   User.findUserByCredentials(req.body.email, req.body.password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'mesto-secret-key', { expiresIn: '7d' });
-      return res.status(200).send({ token });
+      return res.send({ token });
     })
     .catch((error) => next(error));
 };
