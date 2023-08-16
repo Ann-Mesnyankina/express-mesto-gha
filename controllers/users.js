@@ -98,7 +98,7 @@ module.exports.updateAvatar = (req, res, next) => {
     .orFail()
     .then((user) => res.send({ data: user }))
     .catch((error) => {
-      if (error instanceof mongoose.Error.CastError) {
+      if (error instanceof mongoose.Error.ValidationError) {
         next(new CastError('Передан неверный ID'));
       } else if (error instanceof mongoose.Error.DocumentNotFoundError) {
         next(new NotFoundError('Запрашиваемый пользователь не найден'));
